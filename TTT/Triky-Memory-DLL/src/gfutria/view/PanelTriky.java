@@ -43,6 +43,7 @@ public class PanelTriky extends JPanel {
         if (movimientoValido) {
             label.setText("X"); // Actualizar la celda con el símbolo del jugador
             label.setEnabled(false); // Deshabilitar la celda después de jugar
+            controlador.machinePlays(); // Hacer que la máquina juegue después del jugador
         }
     }
 }

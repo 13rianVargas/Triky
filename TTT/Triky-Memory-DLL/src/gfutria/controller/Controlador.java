@@ -29,32 +29,13 @@ public class Controlador {
 //        Consola.mostrarMensaje("El jugador empieza");
         
         while (finJuego) {
-            //JUGADOR//
-            boolean movimientoValido = false;
-            while (!movimientoValido) {
-                // FILA
-//                Consola.mostrarMensaje("Ingrese la fila donde desea colocar su simbolo:");
-                int i = Consola.pedirInt(); //TODO: Guardar posición en X de la Ventana
-                while (i < 0 || i > 2) {
-//                    Consola.mostrarMensaje("Posicion invalida, ingrese nuevamente la fila:");
-                    i = Consola.pedirInt(); //TODO: Guardar posición en X de la Ventana
-                }
-                // COLUMNA
-//                Consola.mostrarMensaje("Ingrese la columna donde desea colocar su simbolo:");
-                int j = Consola.pedirInt(); //TODO: Guardar posición en Y de la Ventana
-                while (j < 0 || j > 2) {
-//                    Consola.mostrarMensaje("Posicion invalida, ingrese nuevamente la columna:");
-                    j = Consola.pedirInt(); //TODO: Guardar posición en Y de la Ventana
-                }
-
-                movimientoValido = humanPlayed(i, j);
-            }
-
+            // La lógica de entrada por consola ya no es necesaria
+            // El flujo de juego ahora depende de los clics en la interfaz gráfica
             if (!finJuego) {
                 break;
             }
 
-            machinePlays();
+            machinePlays(); // La máquina juega después del movimiento del jugador
         }
     }
     
@@ -65,41 +46,36 @@ public class Controlador {
     public boolean humanPlayed(int i, int j) {
         boolean movimientoValido = false;
         movimientoValido = tablero.humanPlayed(i,j);
-        getStatus(); //TODO: Revisar que se envie correctamente el tablero a la GUI
-//        mostrarTableroPorConsola(tablero.getTablero());
+        getStatus();
         if (hayGanador()) {
-//            Consola.mostrarMensaje("El jugador ha ganado!");
-            //TODO: Cambiar el mensaje y el JOptionPane
-            JOptionPane.showMessageDialog(null, "Memory has been cleared.", "Memory", JOptionPane.INFORMATION_MESSAGE);      
+            JOptionPane.showMessageDialog(null, "El jugador ha ganado!", "Ganador", JOptionPane.INFORMATION_MESSAGE);      
             if (tablero.isLearning()) {
                 tablero.gameOver(false);
             }
             finJuego = false;
         } else if (tableroLleno()) {
-//            Consola.mostrarMensaje("¡El juego ha terminado en empate!");
-            //TODO: Cambiar el mensaje y el JOptionPane
-            JOptionPane.showMessageDialog(null, "Memory has been cleared.", "Memory", JOptionPane.INFORMATION_MESSAGE);     
+            JOptionPane.showMessageDialog(null, "¡El juego ha terminado en empate!", "Empate", JOptionPane.INFORMATION_MESSAGE);     
             finJuego = false;
         }
         return movimientoValido;
+
+        
     }
 
     public void machinePlays() {
+        if (!finJuego) { // Verificar si el juego ya terminó
+            return;
+        }
         tablero.machinePlays();
-        getStatus(); //TODO: Revisar que se envie correctamente el tablero a la GUI
-//        mostrarTableroPorConsola(tablero.getTablero());
+        getStatus(); // Actualizar el estado del tablero
         if (hayGanador()) {
-//            Consola.mostrarMensaje("La máquina ha ganado!");
-            //TODO: Cambiar el mensaje y el JOptionPane
-            JOptionPane.showMessageDialog(null, "Memory has been cleared.", "Memory", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "La máquina ha ganado!", "Ganador", JOptionPane.INFORMATION_MESSAGE);
             if (tablero.isLearning()) {
                 tablero.gameOver(true);
             }
             finJuego = false;
         } else if (tableroLleno()) {
-//            Consola.mostrarMensaje("¡El juego ha terminado en empate!");
-            //TODO: Cambiar el mensaje y el JOptionPane
-            JOptionPane.showMessageDialog(null, "Memory has been cleared.", "Memory", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "¡El juego ha terminado en empate!", "Empate", JOptionPane.INFORMATION_MESSAGE);
             finJuego = false;
         }
     }

@@ -1,7 +1,6 @@
 package gfutria.model;
 
 import gfutria.Memory;
-import gfutria.view.Consola;
 import javax.swing.JOptionPane;
 
 public class Triky {
