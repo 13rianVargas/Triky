@@ -2,10 +2,11 @@ package gfutria.model;
 
 import gfutria.Memory;
 import gfutria.view.Consola;
+import javax.swing.JOptionPane;
 
 public class Triky {
-    private char[][] tablero;
-    private int[][] intTablero;
+    private char[][] tablero; //Para consola
+    private int[][] intTablero; //Para GUI
     private char jugador = 'X';
     private char maquina = 'O';
     private Memory memory;
@@ -53,10 +54,12 @@ public class Triky {
         if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
             tablero[i][j] = jugador;
             intTablero[i][j] = 1;
-            Consola.mostrarMensaje("Jugador coloca en (" + i + "," + j + ")");
+//            Consola.mostrarMensaje("Jugador coloca en (" + i + "," + j + ")");
             return true;
         }
-        Consola.mostrarMensaje("Casilla ocupada, seleccione otra posición");
+        //TODO: Cambiar el mensaje y el JOptionPane
+            JOptionPane.showMessageDialog(null, "Memory has been cleared.", "Memory", JOptionPane.INFORMATION_MESSAGE);
+//        Consola.mostrarMensaje("Casilla ocupada, seleccione otra posición");
         return false;
     }
 
@@ -65,7 +68,7 @@ public class Triky {
         int i, j;
         
         if (randomMove) {
-            // Make random move if state is unknown
+            // Movimiento aleatorio
             boolean movimientoValido = false;
             while (!movimientoValido) {
                 i = (int) (Math.random() * 3);
@@ -73,17 +76,17 @@ public class Triky {
                 if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
                     tablero[i][j] = maquina;
                     intTablero[i][j] = 2;
-                    Consola.mostrarMensaje("Máquina coloca en (" + i + "," + j + ")");
+//                    Consola.mostrarMensaje("Máquina coloca en (" + i + "," + j + ")");
                     movimientoValido = true;
                 }
             }
         } else {
-            // Use remembered position
+            //Usa la posición de la memoria
             i = memory.getRow();
             j = memory.getCol();
             tablero[i][j] = maquina;
             intTablero[i][j] = 2;
-            Consola.mostrarMensaje("Máquina (usando memoria) coloca en (" + i + "," + j + ")");
+//            Consola.mostrarMensaje("Máquina (usando memoria) coloca en (" + i + "," + j + ")");
         }
     }
     

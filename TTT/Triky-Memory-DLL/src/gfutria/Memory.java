@@ -19,11 +19,11 @@ public class Memory {
         currentGameState = convertBoardToString(triky);
         
         if (neurons.verify(currentGameState)) {
-            // If this state is known, don't make a random move
+            // Si el estado ya está en la memoria, no se hace nada
             return false;
         }
         
-        // Make a random move if state is unknown
+        //Movimiento aleatorio
         do {
             row = (int)(Math.random() * 3);
             col = (int)(Math.random() * 3);
@@ -47,7 +47,7 @@ public class Memory {
     public void gameOver(boolean win) {
         if (learning && currentGameState != null) {
             if (win) {
-                // Save winning states
+                // Guardar el estado del juego si la máquina ganó
                 neurons.save(currentGameState);
             }
         }
