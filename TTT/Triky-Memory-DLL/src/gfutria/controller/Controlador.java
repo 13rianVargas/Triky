@@ -2,142 +2,176 @@ package gfutria.controller;
 
 import gfutria.view.Consola;
 import gfutria.model.Triky;
-import gfutria.view.InterfazApp;
-import javax.swing.JOptionPane;
 
 public class Controlador {
     private Triky tablero;
-    private boolean finJuego = true;
-    private boolean ataque = false;
-    private boolean defensa = false; 
-    private boolean aprender = false; 
-    private boolean firstBlank = false;
-    private boolean random = false;
+    private boolean finJuego;
+    private boolean aprender;
+    private boolean firstBlank;
+    private boolean random;
 
     public void run() {
-        //GUI CAMI//
-        InterfazApp panta = new InterfazApp(this); // Pasar el controlador
-        panta.setVisible(true);
-        panta.setLocationRelativeTo(null);
-        
-        //CONSOLE BRI//
         tablero = new Triky();
-
-        ataque = false;
-        defensa = false;
-        aprender = false; //TODO: Opcion "I Want to Learn" de la GUI
-        firstBlank = false; //TODO: Opcion "First blank" de la GUI
-        random = false; //TODO: Opcion "Random" de la GUI
-
-        tablero.setLearning(aprender);
+        inicializarOpciones();
         
+        Consola.mostrarMensaje("¡Bienvenido a Triky!");
+        Consola.mostrarMensaje("\nConfiguracion de la máquina:");
+        Consola.mostrarMensaje("Modo de juego: " + (random ? "Random" : "First Blank"));
+        Consola.mostrarMensaje("I Want to Learn: " + (aprender ? "Activado" : "Desactivado"));
+        Consola.mostrarMensaje("\n¿Desea cambiar la configuración? (1: Si, 0: No):");
+        
+        if (Consola.pedirInt() == 1) {
+            configurarJuego();
+        }
+
+        Consola.mostrarMensaje("\nJugador: X  |  Máquina: O\n");
+        mostrarTableroPorConsola(tablero.getTablero());
+
         while (finJuego) {
-            // La lógica de entrada por consola ya no es necesaria
-            // El flujo de juego ahora depende de los clics en la interfaz gráfica
-            if (!finJuego) {
-                break;
+            // Solicita y procesa la jugada del jugador humano
+            Consola.mostrarMensaje("\nTurno del jugador");
+            
+            boolean jugadaValida = false;
+            while (!jugadaValida && finJuego) {
+                try {
+                    Consola.mostrarMensaje("Ingrese fila (0-2):");
+                    int fila = Consola.pedirInt();
+                    Consola.mostrarMensaje("Ingrese columna (0-2):");
+                    int columna = Consola.pedirInt();
+                    
+                    jugadaValida = tablero.humanPlayed(fila, columna);
+                    if (!jugadaValida) {
+                        Consola.mostrarMensaje("Posición inválida. Intente de nuevo.");
+                    }
+                } catch (Exception e) {
+                    Consola.mostrarMensaje("Por favor ingrese números válidos.");
+                }
             }
 
-            machinePlays(); // La máquina juega después del movimiento del jugador
+            // Verifica victoria del jugador o empate
+            if (hayGanador()) {
+                mostrarTableroPorConsola(tablero.getTablero());
+                Consola.mostrarMensaje("\n¡El jugador ha ganado!");
+                if (tablero.isLearning()) {
+                    tablero.gameOver(false);
+                }
+                finJuego = false;
+                continue;
+            } else if (tableroLleno()) {
+                mostrarTableroPorConsola(tablero.getTablero());
+                Consola.mostrarMensaje("\n¡El juego ha terminado en empate!");
+                finJuego = false;
+                continue;
+            }
+
+            // Procesa el turno de la máquina y muestra el resultado
+            Consola.mostrarMensaje("\nTurno de la máquina:");
+            machinePlays();
+
+            // Verificar si la máquina ganó
+            if (hayGanador()) {
+                mostrarTableroPorConsola(tablero.getTablero());
+                Consola.mostrarMensaje("\n¡La máquina ha ganado!");
+                if (tablero.isLearning()) {
+                    tablero.gameOver(true);
+                }
+                finJuego = false;
+            } else if (tableroLleno()) {
+                mostrarTableroPorConsola(tablero.getTablero());
+                Consola.mostrarMensaje("\n¡El juego ha terminado en empate!");
+                finJuego = false;
+            }
+        }
+
+        boolean menuActivo = true;
+        while (menuActivo) {
+            Consola.mostrarMensaje("\nSeleccione una opción:");
+            Consola.mostrarMensaje("1. Jugar otra vez");
+            Consola.mostrarMensaje("2. Limpiar base de datos");
+            Consola.mostrarMensaje("3. Salir");
+            
+            try {
+                int opcion = Consola.pedirInt();
+                switch (opcion) {
+                    case 1:
+                        menuActivo = false;
+                        reiniciarJuego();
+                        run();
+                        break;
+                    case 2:
+                        Consola.mostrarMensaje("\n¿Está seguro que desea limpiar la base de datos? (1: Si, 0: No)");
+                        if (Consola.pedirInt() == 1) {
+                            limpiarMemoria();
+                            reiniciarJuego();
+                            menuActivo = false;
+                            run();
+                        }
+                        break;
+                    case 3:
+                        menuActivo = false;
+                        Consola.mostrarMensaje("¡Gracias por jugar!");
+                        break;
+                    default:
+                        Consola.mostrarMensaje("Opción inválida. Por favor intente de nuevo.");
+                        break;
+                }
+            } catch (Exception e) {
+                Consola.mostrarMensaje("Error: Por favor ingrese un número válido.");
+            }
         }
     }
     
-    public void limpiarMemoria(){ //TODO: Conectar con botón "Reset D.B." de la GUI
+    public void limpiarMemoria(){
         tablero.getMemory().clear();
+        Consola.mostrarMensaje("\nBase de datos de aprendizaje limpiada.");
     }
 
     public boolean humanPlayed(int i, int j) {
-        boolean movimientoValido = false;
-        movimientoValido = tablero.humanPlayed(i,j);
-        getStatus();
-        if (hayGanador()) {
-            //TODO: PRIMERO LA X LUEGO EL MENSAJE Y CORTAR LA EJECUCIÓN
-            JOptionPane.showMessageDialog(null, "El jugador ha ganado!", "Ganador", JOptionPane.INFORMATION_MESSAGE);      
-            if (tablero.isLearning()) {
-                tablero.gameOver(false);
-            }
-            finJuego = false;
-        } else if (tableroLleno()) {
-            JOptionPane.showMessageDialog(null, "¡El juego ha terminado en empate!", "Empate", JOptionPane.INFORMATION_MESSAGE);     
-            finJuego = false;
-        }
-        return movimientoValido;
-
-        
+        return tablero.humanPlayed(i, j);
     }
 
     public void machinePlays() {
-        if (!finJuego) { // Verificar si el juego ya terminó
+        if (!finJuego) {
             return;
         }
-        getStatus(); // Actualizar el estado del tablero
-        boolean movimientoRealizado = false;
 
-        // Primera prioridad: Ataque
-        if (ataque) {
-            movimientoRealizado = tablero.attackMachinePlays();
+        // Ejecutamos la estrategia de juego seleccionada
+        if (firstBlank) {
+            tablero.blankMachinePlays();
+        } else if (random) {
+            tablero.randomMachinePlays();
         }
 
-        // Segunda prioridad: Defensa
-        if (!movimientoRealizado && defensa) {
-            movimientoRealizado = tablero.defenseMachinePlays();
-        }
-
-        // Tercera prioridad: Random o First Blank
-        if (!movimientoRealizado) {
-            if (aprender) {
-                tablero.smartMachinePlays();
-            } else if (random) {
-                tablero.randomMachinePlays();
-            } else if (firstBlank) {
-                tablero.blankMachinePlays();
-            }
-        }
+        mostrarTableroPorConsola(tablero.getTablero());
 
         // Verificar estado del juego
         if (hayGanador()) {
-            //TODO: PRIMERO LA O LUEGO EL MENSAJE Y CORTAR LA EJECUCIÓN
-            JOptionPane.showMessageDialog(null, "La máquina ha ganado!", "Ganador", JOptionPane.INFORMATION_MESSAGE);
+            Consola.mostrarMensaje("La máquina ha ganado!");
             if (tablero.isLearning()) {
                 tablero.gameOver(true);
             }
             finJuego = false;
         } else if (tableroLleno()) {
-            JOptionPane.showMessageDialog(null, "¡El juego ha terminado en empate!", "Empate", JOptionPane.INFORMATION_MESSAGE);
+            Consola.mostrarMensaje("El juego ha terminado en empate!");
             finJuego = false;
         }
-    }
-
-    private int contarFichas(char a, char b, char c, char ficha) {
-        int count = 0;
-        if (a == ficha) count++;
-        if (b == ficha) count++;
-        if (c == ficha) count++;
-        return count;
-    }
-
-    private int contarEspaciosVacios(char a, char b, char c) {
-        int count = 0;
-        if (a == ' ' || a == '\0') count++;
-        if (b == ' ' || b == '\0') count++;
-        if (c == ' ' || c == '\0') count++;
-        return count;
     }
 
     public Triky getStatus() {
         return tablero;
     }
     
-    //Esto ya no se usa pero lo dejamos para el debug
     public void mostrarTableroPorConsola(char[][] tablero) {
         Consola.mostrarMensaje("\n     0   1   2");
         Consola.mostrarMensaje("   +---+---+---+");
         for (int i = 0; i < tablero.length; i++) {
-            System.out.print(" " + i + " | ");
+            StringBuilder fila = new StringBuilder(" " + i + " | ");
             for (int j = 0; j < tablero[i].length; j++) {
-                System.out.print((tablero[i][j] == '\0' ? " " : tablero[i][j]) + " | ");
+                char symbol = (tablero[i][j] == '\0') ? ' ' : tablero[i][j];
+                fila.append(symbol).append(" | ");
             }
-            Consola.mostrarMensaje("\n   +---+---+---+");
+            Consola.mostrarMensaje(fila.toString());
+            Consola.mostrarMensaje("   +---+---+---+");
         }
     }
 
@@ -156,7 +190,7 @@ public class Controlador {
     public boolean hayGanador() {
         char[][] board = tablero.getTablero();
         
-        // Revisar horizontales
+        // Verifica líneas horizontales
         for (int i = 0; i < 3; i++) {
             if ((board[i][0] != ' ' && board[i][0] != '\0') && 
                 board[i][0] == board[i][1] && 
@@ -165,7 +199,7 @@ public class Controlador {
             }
         }
         
-        // Revisar verticales
+        // Verifica líneas verticales
         for (int j = 0; j < 3; j++) {
             if ((board[0][j] != ' ' && board[0][j] != '\0') && 
                 board[0][j] == board[1][j] && 
@@ -174,14 +208,14 @@ public class Controlador {
             }
         }
         
-        // Revisar diagonal principal
+        // Verifica diagonal principal (esquina superior izquierda a inferior derecha)
         if ((board[0][0] != ' ' && board[0][0] != '\0') && 
             board[0][0] == board[1][1] && 
             board[1][1] == board[2][2]) {
             return true;
         }
         
-        // Revisar diagonal secundaria
+        // Verifica diagonal secundaria (esquina superior derecha a inferior izquierda)
         if ((board[0][2] != ' ' && board[0][2] != '\0') && 
             board[0][2] == board[1][1] && 
             board[1][1] == board[2][0]) {
@@ -191,4 +225,44 @@ public class Controlador {
         return false;
     }
 
+    private void inicializarOpciones() {
+        aprender = true; // Aprender siempre activado por defecto
+        firstBlank = false;
+        random = true; //Random por defecto
+        finJuego = true;
+        tablero.setLearning(aprender);
+    }
+
+    private void configurarJuego() {
+        Consola.mostrarMensaje("\nSeleccione modo de juego:");
+        Consola.mostrarMensaje("1. First Blank");
+        Consola.mostrarMensaje("2. Random");
+        
+        try {
+            int modo = Consola.pedirInt();
+            // Establecer modo de juego
+            firstBlank = modo == 1;
+            random = !firstBlank; // Si no es firstBlank, será random
+            
+            // Configurar aprendizaje independientemente
+            Consola.mostrarMensaje("\n¿Activar modo aprendizaje? (1: Si, 0: No)");
+            aprender = Consola.pedirInt() == 1;
+            tablero.setLearning(aprender);
+            
+            if (aprender) {
+                Consola.mostrarMensaje("Modo aprendizaje activado - Los estados se guardarán automáticamente");
+            }
+        } catch (Exception e) {
+            Consola.mostrarMensaje("Error: Selección inválida, se usará modo Random sin aprendizaje");
+            firstBlank = false;
+            random = true;
+            aprender = false;
+            tablero.setLearning(false);
+        }
+    }
+
+    public void reiniciarJuego() {
+        tablero = new Triky();
+        inicializarOpciones();
+    }
 }
