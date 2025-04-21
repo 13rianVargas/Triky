@@ -11,7 +11,7 @@ public class Controlador {
 
     public void run() {
         //GUI CAMI//
-        InterfazApp panta = new InterfazApp();
+        InterfazApp panta = new InterfazApp(this); // Pasar el controlador
         panta.setVisible(true);
         panta.setLocationRelativeTo(null);
         

@@ -1,8 +1,12 @@
 package gfutria.view;
 
-public class InterfazApp extends javax.swing.JFrame {
+import gfutria.controller.Controlador;
 
-    public InterfazApp() {
+public class InterfazApp extends javax.swing.JFrame {
+    private final Controlador controlador;
+
+    public InterfazApp(Controlador controlador) {
+        this.controlador = controlador;
         initComponents();
         setResizable(false); 
         setLocationRelativeTo(null); 
@@ -10,9 +14,8 @@ public class InterfazApp extends javax.swing.JFrame {
 
     @SuppressWarnings("unchecked")
     private void initComponents() {
-
         jPanel1 = new javax.swing.JPanel();
-        panelTriky = new PanelTriky();
+        panelTriky = new PanelTriky(controlador); // Pasar el controlador
         labelClicMouse = new LabelClicMouse();
         panelOpciones = new PanelOpciones();
 
