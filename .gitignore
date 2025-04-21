@@ -1,4 +1,32 @@
-
-Triky-Memory-DLL/nbproject/private/
-
+# Compilados de Java
 *.class
+
+# Carpetas de NetBeans
+nbproject/private/
+build/
+dist/
+
+# Archivos específicos de MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archivos específicos de Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Archivos temporales o de respaldo
+*.swp
+*~
+*.bak
+
+# Ignorar archivos de configuración de IDE
+*.iml
+.idea/
+*.ipr
+*.iws
+.vscode/
