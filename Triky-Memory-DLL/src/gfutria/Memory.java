@@ -15,7 +15,7 @@ public class Memory
   private int row, col;    
   /**
    * Constructor.
-   */  
+   */
   public Memory() 
   { row = col = 0;     
   }
