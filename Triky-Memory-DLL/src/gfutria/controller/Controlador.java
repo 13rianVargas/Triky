@@ -40,8 +40,13 @@ public class Controlador {
 
                 movimientoValido = humanPlayed(i, j);
             }
-            
+
+            if (!finJuego) {
+                break;
+            }
+
             machinePlays();
+
         }
     }
 
@@ -61,6 +66,7 @@ public class Controlador {
 
     public void machinePlays() {
         tablero.machinePlays();
+        
         mostrarTablero(tablero.getTablero());
         if (hayGanador()) {
             Consola.mostrarMensaje("La máquina ha ganado!");
