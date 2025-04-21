@@ -1,69 +1,75 @@
 package gfutria;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import javax.swing.JOptionPane;
 
-/**
- * @since 10/06/2024
- * @version 1.0
- * @author gfutria
- */
-public class Memory
-{
-  private int row, col;    
-  /**
-   * Constructor.
-   */  
-  public Memory() 
-  { row = col = 0;     
-  }
+public class Memory {
+    private int row, col;    
+    private Neurons neurons;
+    private String currentGameState;
+    private boolean learning;
 
-  /**
-   * Define where to play.
-   * AI is learning.
-   * @param triky : Game board .
-   * @return true   
-   */
-  public boolean remember(int triky[][])
-  { 
-    System.out.println("Knowledge...");
+    public Memory() { 
+        row = col = 0;     
+        neurons = new Neurons();
+        learning = false;
+    }
+
+    public boolean remember(int triky[][]) { 
+        currentGameState = convertBoardToString(triky);
         
-    return false;
-  }
+        if (neurons.verify(currentGameState)) {
+            // If this state is known, don't make a random move
+            return false;
+        }
+        
+        // Make a random move if state is unknown
+        do {
+            row = (int)(Math.random() * 3);
+            col = (int)(Math.random() * 3);
+        } while (triky[row][col] != 0);
+        
+        return true;
+    }
 
-  /**
-   * @return game row.
-   */
-  public int getRow() { return row; }
+    public int getRow() { return row; }
 
-  /**
-   * @return game col.
-   */
-  public int getCol() { return col; }
-  
-  /**
-   * AI is informed, as the game ends. 
-   */
-  public void gameOver()
-  {       
-  } 
-  
-  /**
-   * Clean memory.
-   */
-  public void clear()
-  { JOptionPane.showMessageDialog(null, "This requirement was not implemented.", "Memory", JOptionPane.INFORMATION_MESSAGE);      
-  }        
-  
-  /**
-   * Memory list.
-   * @return lst : Memory list.
-   */
-  public ArrayList <String> brain()
-  {  
-    return null;
-  }        
+    public int getCol() { return col; }
+    
+    public void setLearning(boolean learning) {
+        this.learning = learning;
+    }
+    
+    public boolean isLearning() {
+        return learning;
+    }
+    
+    public void gameOver(boolean win) {
+        if (learning && currentGameState != null) {
+            if (win) {
+                // Save winning states
+                neurons.save(currentGameState);
+            }
+        }
+    }
+    
+    public void clear() {
+        neurons = new Neurons();
+        JOptionPane.showMessageDialog(null, "Memory has been cleared.", "Memory", JOptionPane.INFORMATION_MESSAGE);      
+    }        
+    
+    public ArrayList<String> brain() {
+        return neurons.getNeurons();
+    }
+    
+    private String convertBoardToString(int[][] board) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                sb.append(board[i][j]);
+            }
+        }
+        return sb.toString();
+    }
 }
 

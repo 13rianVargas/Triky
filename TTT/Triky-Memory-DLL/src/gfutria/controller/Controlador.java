@@ -1,7 +1,6 @@
 package gfutria.controller;
 
 import gfutria.view.Consola;
-
 import gfutria.model.Triky;
 import gfutria.view.InterfazApp;
 
@@ -19,14 +18,17 @@ public class Controlador {
         tablero = new Triky();
         
         Consola.mostrarMensaje("Bienvenido al juego de Triky");
+        Consola.mostrarMensaje("¿Desea activar el aprendizaje de la máquina? (1: Sí, 0: No)");
+        int aprender = Consola.pedirInt();
+        tablero.setLearning(aprender == 1);
+        
         Consola.mostrarMensaje("El jugador es -> X");
         Consola.mostrarMensaje("La maquina es -> O");
 
-        mostrarTablero(tablero.getTablero());
+        mostrarTableroPorConsola(tablero.getTablero());
         Consola.mostrarMensaje("El jugador empieza");
 
         while (finJuego) {
-
             //JUGADOR//
             boolean movimientoValido = false;
             while (!movimientoValido) {
@@ -53,16 +55,27 @@ public class Controlador {
             }
 
             machinePlays();
-
+        }
+        
+        // Al finalizar el juego, preguntar si desea limpiar la memoria
+        if (tablero.isLearning()) {
+            Consola.mostrarMensaje("¿Desea limpiar la memoria de la máquina? (1: Sí, 0: No)");
+            int limpiar = Consola.pedirInt();
+            if (limpiar == 1) {
+                tablero.getMemory().clear();
+            }
         }
     }
 
     public boolean humanPlayed(int i, int j) {
         boolean movimientoValido = false;
         movimientoValido = tablero.humanPlayed(i,j);
-        mostrarTablero(tablero.getTablero());
+        mostrarTableroPorConsola(tablero.getTablero());
         if (hayGanador()) {
             Consola.mostrarMensaje("El jugador ha ganado!");
+            if (tablero.isLearning()) {
+                tablero.gameOver(false);
+            }
             finJuego = false;
         } else if (tableroLleno()) {
             Consola.mostrarMensaje("¡El juego ha terminado en empate!");
@@ -73,18 +86,25 @@ public class Controlador {
 
     public void machinePlays() {
         tablero.machinePlays();
-        
-        mostrarTablero(tablero.getTablero());
+        getStatus();
+        mostrarTableroPorConsola(tablero.getTablero());
         if (hayGanador()) {
             Consola.mostrarMensaje("La máquina ha ganado!");
+            if (tablero.isLearning()) {
+                tablero.gameOver(true);
+            }
             finJuego = false;
         } else if (tableroLleno()) {
             Consola.mostrarMensaje("¡El juego ha terminado en empate!");
             finJuego = false;
         }
     }
+
+    public Triky getStatus() {
+        return tablero;
+    }
     
-    public void mostrarTablero(char[][] tablero) {
+    public void mostrarTableroPorConsola(char[][] tablero) {
         Consola.mostrarMensaje("\n     0   1   2");
         Consola.mostrarMensaje("   +---+---+---+");
         for (int i = 0; i < tablero.length; i++) {
