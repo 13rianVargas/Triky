@@ -8,6 +8,11 @@ import javax.swing.JOptionPane;
 public class Controlador {
     private Triky tablero;
     private boolean finJuego = true;
+    private boolean ataque = false;
+    private boolean defensa = false; 
+    private boolean aprender = false; 
+    private boolean firstBlank = false;
+    private boolean random = false;
 
     public void run() {
         //GUI CAMI//
@@ -17,16 +22,14 @@ public class Controlador {
         
         //CONSOLE BRI//
         tablero = new Triky();
-        
-        //TODO: Opcion "I Want to Learn"
-        int aprender = Consola.pedirInt();
-        tablero.setLearning(aprender == 1);
 
-//        Consola.mostrarMensaje("El jugador es -> X");
-//        Consola.mostrarMensaje("La maquina es -> O");
-//
-//        mostrarTableroPorConsola(tablero.getTablero());
-//        Consola.mostrarMensaje("El jugador empieza");
+        ataque = false;
+        defensa = false;
+        aprender = false; //TODO: Opcion "I Want to Learn" de la GUI
+        firstBlank = false; //TODO: Opcion "First blank" de la GUI
+        random = false; //TODO: Opcion "Random" de la GUI
+
+        tablero.setLearning(aprender);
         
         while (finJuego) {
             // La lógica de entrada por consola ya no es necesaria
@@ -39,7 +42,7 @@ public class Controlador {
         }
     }
     
-    public void limpiarMemoria(){ //TODO: Conectar con botón "Reset D.B."
+    public void limpiarMemoria(){ //TODO: Conectar con botón "Reset D.B." de la GUI
         tablero.getMemory().clear();
     }
 
@@ -48,6 +51,7 @@ public class Controlador {
         movimientoValido = tablero.humanPlayed(i,j);
         getStatus();
         if (hayGanador()) {
+            //TODO: PRIMERO LA X LUEGO EL MENSAJE Y CORTAR LA EJECUCIÓN
             JOptionPane.showMessageDialog(null, "El jugador ha ganado!", "Ganador", JOptionPane.INFORMATION_MESSAGE);      
             if (tablero.isLearning()) {
                 tablero.gameOver(false);
@@ -66,9 +70,33 @@ public class Controlador {
         if (!finJuego) { // Verificar si el juego ya terminó
             return;
         }
-        tablero.machinePlays();
         getStatus(); // Actualizar el estado del tablero
+        boolean movimientoRealizado = false;
+
+        // Primera prioridad: Ataque
+        if (ataque) {
+            movimientoRealizado = tablero.attackMachinePlays();
+        }
+
+        // Segunda prioridad: Defensa
+        if (!movimientoRealizado && defensa) {
+            movimientoRealizado = tablero.defenseMachinePlays();
+        }
+
+        // Tercera prioridad: Random o First Blank
+        if (!movimientoRealizado) {
+            if (aprender) {
+                tablero.smartMachinePlays();
+            } else if (random) {
+                tablero.randomMachinePlays();
+            } else if (firstBlank) {
+                tablero.blankMachinePlays();
+            }
+        }
+
+        // Verificar estado del juego
         if (hayGanador()) {
+            //TODO: PRIMERO LA O LUEGO EL MENSAJE Y CORTAR LA EJECUCIÓN
             JOptionPane.showMessageDialog(null, "La máquina ha ganado!", "Ganador", JOptionPane.INFORMATION_MESSAGE);
             if (tablero.isLearning()) {
                 tablero.gameOver(true);
@@ -78,6 +106,22 @@ public class Controlador {
             JOptionPane.showMessageDialog(null, "¡El juego ha terminado en empate!", "Empate", JOptionPane.INFORMATION_MESSAGE);
             finJuego = false;
         }
+    }
+
+    private int contarFichas(char a, char b, char c, char ficha) {
+        int count = 0;
+        if (a == ficha) count++;
+        if (b == ficha) count++;
+        if (c == ficha) count++;
+        return count;
+    }
+
+    private int contarEspaciosVacios(char a, char b, char c) {
+        int count = 0;
+        if (a == ' ' || a == '\0') count++;
+        if (b == ' ' || b == '\0') count++;
+        if (c == ' ' || c == '\0') count++;
+        return count;
     }
 
     public Triky getStatus() {

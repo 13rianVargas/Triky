@@ -35,6 +35,22 @@ public class Triky {
         updateIntTablero();
     }
 
+    public Memory getMemory() {
+        return memory;
+    }
+    
+    public void setLearning(boolean learning) {
+        memory.setLearning(learning);
+    }
+    
+    public boolean isLearning() {
+        return memory.isLearning();
+    }
+    
+    public void gameOver(boolean machineWon) {
+        memory.gameOver(machineWon);
+    }
+
     private void updateIntTablero() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -62,46 +78,160 @@ public class Triky {
         return false;
     }
 
-    public void machinePlays() {
-        boolean randomMove = memory.remember(intTablero);
-        int i, j;
-        
-        if (randomMove) {
-            // Movimiento aleatorio
-            boolean movimientoValido = false;
-            while (!movimientoValido) {
-                i = (int) (Math.random() * 3);
-                j = (int) (Math.random() * 3);
-                if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
-                    tablero[i][j] = maquina;
-                    intTablero[i][j] = 2;
-//                    Consola.mostrarMensaje("Máquina coloca en (" + i + "," + j + ")");
-                    movimientoValido = true;
+    public boolean attackMachinePlays() {
+        // Revisar filas
+        for (int i = 0; i < 3; i++) {
+            if (checkLine(tablero[i][0], tablero[i][1], tablero[i][2], maquina)) {
+                for (int j = 0; j < 3; j++) {
+                    if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
+                        tablero[i][j] = maquina;
+                        intTablero[i][j] = 2;
+                        return true;
+                    }
                 }
             }
+        }
+
+        // Revisar columnas
+        for (int j = 0; j < 3; j++) {
+            if (checkLine(tablero[0][j], tablero[1][j], tablero[2][j], maquina)) {
+                for (int i = 0; i < 3; i++) {
+                    if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
+                        tablero[i][j] = maquina;
+                        intTablero[i][j] = 2;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Revisar diagonal principal
+        if (checkLine(tablero[0][0], tablero[1][1], tablero[2][2], maquina)) {
+            for (int i = 0; i < 3; i++) {
+                if (tablero[i][i] == ' ' || tablero[i][i] == '\0') {
+                    tablero[i][i] = maquina;
+                    intTablero[i][i] = 2;
+                    return true;
+                }
+            }
+        }
+
+        // Revisar diagonal secundaria
+        if (checkLine(tablero[0][2], tablero[1][1], tablero[2][0], maquina)) {
+            for (int i = 0; i < 3; i++) {
+                if (tablero[i][2-i] == ' ' || tablero[i][2-i] == '\0') {
+                    tablero[i][2-i] = maquina;
+                    intTablero[i][2-i] = 2;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean defenseMachinePlays() {
+        // Revisar filas
+        for (int i = 0; i < 3; i++) {
+            if (checkLine(tablero[i][0], tablero[i][1], tablero[i][2], jugador)) {
+                for (int j = 0; j < 3; j++) {
+                    if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
+                        tablero[i][j] = maquina;
+                        intTablero[i][j] = 2;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Revisar columnas
+        for (int j = 0; j < 3; j++) {
+            if (checkLine(tablero[0][j], tablero[1][j], tablero[2][j], jugador)) {
+                for (int i = 0; i < 3; i++) {
+                    if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
+                        tablero[i][j] = maquina;
+                        intTablero[i][j] = 2;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Revisar diagonal principal
+        if (checkLine(tablero[0][0], tablero[1][1], tablero[2][2], jugador)) {
+            for (int i = 0; i < 3; i++) {
+                if (tablero[i][i] == ' ' || tablero[i][i] == '\0') {
+                    tablero[i][i] = maquina;
+                    intTablero[i][i] = 2;
+                    return true;
+                }
+            }
+        }
+
+        // Revisar diagonal secundaria
+        if (checkLine(tablero[0][2], tablero[1][1], tablero[2][0], jugador)) {
+            for (int i = 0; i < 3; i++) {
+                if (tablero[i][2-i] == ' ' || tablero[i][2-i] == '\0') {
+                    tablero[i][2-i] = maquina;
+                    intTablero[i][2-i] = 2;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean checkLine(char a, char b, char c, char player) {
+        int count = 0;
+        int spaces = 0;
+        
+        if (a == player) count++;
+        if (b == player) count++;
+        if (c == player) count++;
+        
+        if (a == ' ' || a == '\0') spaces++;
+        if (b == ' ' || b == '\0') spaces++;
+        if (c == ' ' || c == '\0') spaces++;
+        
+        return count == 2 && spaces == 1;
+    }
+
+    public void randomMachinePlays() {
+        int i, j;
+        do {
+            i = (int)(Math.random() * 3);
+            j = (int)(Math.random() * 3);
+        } while (tablero[i][j] != ' ' && tablero[i][j] != '\0');
+        
+        tablero[i][j] = maquina;
+        intTablero[i][j] = 2;
+    }
+
+    public void smartMachinePlays() {
+        if (memory.remember(intTablero)) {
+            int row = memory.getRow();
+            int col = memory.getCol();
+            if (tablero[row][col] == ' ' || tablero[row][col] == '\0') {
+                tablero[row][col] = maquina;
+                intTablero[row][col] = 2;
+            } else {
+                randomMachinePlays();
+            }
         } else {
-            //Usa la posición de la memoria
-            i = memory.getRow();
-            j = memory.getCol();
-            tablero[i][j] = maquina;
-            intTablero[i][j] = 2;
-//            Consola.mostrarMensaje("Máquina (usando memoria) coloca en (" + i + "," + j + ")");
+            randomMachinePlays();
         }
     }
     
-    public Memory getMemory() {
-        return memory;
-    }
-    
-    public void setLearning(boolean learning) {
-        memory.setLearning(learning);
-    }
-    
-    public boolean isLearning() {
-        return memory.isLearning();
-    }
-    
-    public void gameOver(boolean machineWon) {
-        memory.gameOver(machineWon);
+    public void blankMachinePlays() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (tablero[i][j] == ' ' || tablero[i][j] == '\0') {
+                    tablero[i][j] = maquina;
+                    intTablero[i][j] = 2;
+                    return;
+                }
+            }
+        }
     }
 }

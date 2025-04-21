@@ -23,7 +23,7 @@ public class Memory {
             return false;
         }
         
-        //Movimiento aleatorio
+        // Solo almacenamos la posición, no hacemos el movimiento
         do {
             row = (int)(Math.random() * 3);
             col = (int)(Math.random() * 3);
