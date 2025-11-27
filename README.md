@@ -1,5 +1,7 @@
 # 🎮 Triky - Tic-Tac-Toe con Aprendizaje Automático
 
+> ⚠️ **Proyecto Archivado**: Este proyecto fue archivado ya que fue un trabajo contratado por otra persona que ya cumplió su función.
+
 **Triky** es un juego de Tres en Raya (Tic-Tac-Toe) desarrollado en Java que incluye una inteligencia artificial capaz de aprender de sus partidas y mejorar su rendimiento con el tiempo.
 
 ## ✨ Características
